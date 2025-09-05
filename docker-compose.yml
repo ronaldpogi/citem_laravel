@@ -10,13 +10,27 @@ services:
       - "8000:8000"
     volumes:
       - ./:/app
+      # Keep vendor inside container so it's not shadowed by the bind mount
+      - /app/vendor
       - ./storage:/app/storage
+    environment:
+      APP_ENV: local
+      APP_DEBUG: 'true'
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: mydb
+      DB_USERNAME: user
+      DB_PASSWORD: password
     depends_on:
       - db
     networks:
       - application
     command: >
       sh -c "
+        [ -f .env ] || printf 'APP_NAME=Laravel\nAPP_ENV=local\nAPP_KEY=\nAPP_DEBUG=true\nAPP_URL=http://localhost\nLOG_CHANNEL=stack\nLOG_LEVEL=debug\nDB_CONNECTION=mysql\nDB_HOST=db\nDB_PORT=3306\nDB_DATABASE=mydb\nDB_USERNAME=user\nDB_PASSWORD=password\nBROADCAST_DRIVER=log\nCACHE_DRIVER=file\nFILESYSTEM_DISK=local\nQUEUE_CONNECTION=sync\nSESSION_DRIVER=file\nSESSION_LIFETIME=120\n' > .env; \
+        composer install --no-interaction --prefer-dist --optimize-autoloader && \
         php artisan key:generate --force && \
         php artisan migrate --seed --force && \
         php artisan serve --host=0.0.0.0 --port=8000

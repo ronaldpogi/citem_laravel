@@ -6,7 +6,7 @@ A Laravel application with Docker support.
 
 1) Start the app
 ```bash
-docker-compose up -d --build
+docker-compose up --build
 ```
 
 2) Open in browser
